@@ -2,9 +2,7 @@
 #ifndef BANK
 #define BANK
 
-#include <sys/types.h>
-
-// Structure representing an account
+// Structure of an account
 struct Account {
     int balance;
     int minBalance;
@@ -15,7 +13,7 @@ struct Account {
 // Bank class
 class Bank {
 public:
-    Bank(int numAccounts, int maxBalance);
+    Bank(Account* bankData, int numAccounts, int maxBalance);
     ~Bank();
 
     void printBalance(int accountNum);
@@ -26,22 +24,19 @@ public:
     void debit(int amount);
     void setMinBalance(int accountNum, int minBalance);
     void setMaxBalance(int accountNum, int maxBalance);
+    bool isValidAccount(int accountNum);
+    // Pointer to the shared memory segment
+    Account* bankData_;
+    
+
 
 private:
     int numAccounts_;
     int maxBalance_;
 
-    // Shared memory segment identifier
-    int shmId_;
-
-    // Pointer to the shared memory segment
-    Account* bankData_;
 
     // Semaphore identifier
     int semId_;
-
-    // Helper function to initialize shared memory
-    void initializeSharedMemory();
 
     // Helper function to initialize semaphores
     void initializeSemaphores();
@@ -58,4 +53,4 @@ private:
 
 #endif
 
-// g++ -o deinit main_deinit.cpp bank.cpp -lrt -lpthread
+

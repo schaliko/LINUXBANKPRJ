@@ -7,7 +7,8 @@
 
 // Constants for shared memory and semaphore
 // const int SHM_KEY = 1234;   // Shared memory key
-const int SEM_KEY = 5678;   // Semaphore key
+// const int SEM_KEY = 5678;   // Semaphore key
+int shmId_;
 
 // Bank constructor
 Bank::Bank(Account* bankData, int numAccounts, int maxBalance) : bankData_(bankData), numAccounts_(numAccounts), maxBalance_(maxBalance) {
@@ -22,21 +23,6 @@ Bank::Bank(Account* bankData, int numAccounts, int maxBalance) : bankData_(bankD
     // Initialize semaphores
     initializeSemaphores();
 }
-
-// Bank destructor
-Bank::~Bank() {
-    int shmId_;
-
-    // Detach from the shared memory segment
-    shmdt(bankData_);
-
-    // Destroy the shared memory segment
-    shmctl(shmId_, IPC_RMID, nullptr);
-
-    // Destroy the semaphore
-    semctl(semId_, 0, IPC_RMID);
-}
-
 
 // Helper function to initialize semaphores
 void Bank::initializeSemaphores() {
@@ -67,6 +53,46 @@ void Bank::initializeSemaphores() {
     }
 }
 
+// Bank destructor
+Bank::~Bank() {
+    int shmId_;
+
+    // Detach from the shared memory segment
+    shmdt(bankData_);
+
+    // Destroy the shared memory segment
+    shmctl(shmId_, IPC_RMID, nullptr);
+
+    // Destroy the semaphore
+    semctl(semId_, 0, IPC_RMID);
+}
+
+
+// // Bank destructor
+// // Bank destructor
+// Bank::~Bank() {
+//     // Detach from the shared memory segment
+//     shmdt(bankData_);
+
+//     // Destroy the shared memory segment
+//     shmctl(shmId_, IPC_RMID, nullptr);
+
+//     // Destroy the semaphores
+//     for (int i = 0; i < numAccounts_; ++i) {
+//         int semId = semget(ftok("shm_file", 'A') + i, 1, IPC_CREAT | 0666);
+//         if (semId == -1) {
+//             perror("semget");
+//             exit(EXIT_FAILURE);
+//         }
+
+//         if (semctl(semId, 0, IPC_RMID) == -1) {
+//             perror("semctl");
+//             exit(EXIT_FAILURE);
+//         }
+//     }
+// }
+
+
 // Helper function to perform semaphore P operation
 void Bank::semaphoreP() {
     struct sembuf sb;
@@ -95,7 +121,7 @@ Account& Bank::getAccount(int accountNum) {
 
 // Helper function to validate account number
 bool Bank::isValidAccount(int accountNum) {
-    return accountNum >= 0;
+    return (accountNum >= 0) && (accountNum < numAccounts_);
 }
 
 

@@ -27,13 +27,19 @@ public:
     bool isValidAccount(int accountNum);
     // Pointer to the shared memory segment
     Account* bankData_;
-    
+
+    int getNumAccounts() const {
+        return numAccounts_;
+    }
+
+    int getMaxBalance() const {
+        return numAccounts_;
+    }
 
 
 private:
     int numAccounts_;
     int maxBalance_;
-
 
     // Semaphore identifier
     int semId_;

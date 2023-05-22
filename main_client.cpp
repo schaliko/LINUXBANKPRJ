@@ -28,13 +28,28 @@ int main() {
         exit(1);
     }
 
-    Bank bank(bankData, 10, 1000);  // Create a bank with 10 accounts and maximum balance of 1000
-
-//     Bank* bank = static_cast<Bank*>(shmat(shmId, nullptr, 0));
-//     if (bank == reinterpret_cast<Bank*>(-1)) {
-//         perror("shmat");
-//         exit(errno);
+// int numSemaphores = 0;
+//     // Retrieve the number of semaphores from the shared memory segment
+//     int semId = semget(shmKey, 0, 0);
+//     if (semId != -1) {
+//         numSemaphores = semctl(semId, 0, GETVAL);
+//         std::cout << numSemaphores;
 //     }
+
+//     int maxBalance = 0;
+//     // Retrieve the maximum balance from the shared memory segment
+//     if (shmId > 0) {
+//         // Retrieve the shared memory segment associated with the given key
+//         struct shmid_ds shmInfo;
+//         shmctl(shmId, IPC_STAT, &shmInfo);
+
+//         // Extract the maximum balance from the shm_perm.mode field
+//         maxBalance = shmInfo.shm_perm.mode & 0xFFFF;
+//     }
+
+    Bank bank(bankData, numSemaphores, maxBalance);
+
+    // Bank bank(bankData, 10, 1000);  // Create a bank with 10 accounts and maximum balance of 1000
 
     std::string line;
     while (true) {

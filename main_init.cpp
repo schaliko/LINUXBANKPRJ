@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    int shmId = shmget(shmKey, numAccounts * sizeof(Account), IPC_CREAT | 0666);
+    int shmId = shmget(shmKey, sizeof(Bank), IPC_CREAT | IPC_EXCL | 0666);
     if (shmId == -1) {
         perror("shmget");
         exit(1);

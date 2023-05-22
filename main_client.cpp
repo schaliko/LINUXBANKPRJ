@@ -16,7 +16,7 @@ int main() {
         exit(1);
     }
 
-    int shmId = shmget(shmKey, sizeof(Bank), IPC_CREAT | 0666);
+    int shmId = shmget(shmKey, sizeof(Bank), 0666);
     if (shmId == -1) {
         perror("shmget");
         exit(1);
@@ -28,26 +28,23 @@ int main() {
         exit(1);
     }
 
-// int numSemaphores = 0;
-//     // Retrieve the number of semaphores from the shared memory segment
-//     int semId = semget(shmKey, 0, 0);
-//     if (semId != -1) {
-//         numSemaphores = semctl(semId, 0, GETVAL);
-//         std::cout << numSemaphores;
-//     }
+    int semId = semget(shmKey, 0, 0);
+    if (semId == -1) {
+        perror("semget");
+        exit(1);
+    }
 
-//     int maxBalance = 0;
-//     // Retrieve the maximum balance from the shared memory segment
-//     if (shmId > 0) {
-//         // Retrieve the shared memory segment associated with the given key
-//         struct shmid_ds shmInfo;
-//         shmctl(shmId, IPC_STAT, &shmInfo);
+    struct semid_ds semInfo;
+    if (semctl(semId, 0, IPC_STAT, &semInfo) == -1) {
+        perror("semctl");
+        exit(1);
+    }
 
-//         // Extract the maximum balance from the shm_perm.mode field
-//         maxBalance = shmInfo.shm_perm.mode & 0xFFFF;
-//     }
+    int numSemaphores = semInfo.sem_nsems;
 
-    Bank bank(bankData, numSemaphores, maxBalance);
+    // std::cout << "Number of semaphores: " << numSemaphores << std::endl;
+
+    Bank bank(bankData, numSemaphores, bankData[0].maxBalance);
 
     // Bank bank(bankData, 10, 1000);  // Create a bank with 10 accounts and maximum balance of 1000
 

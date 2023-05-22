@@ -19,17 +19,21 @@ int main() {
         exit(1);
     }
 
-    // Read numAccounts from shared memory
-    int* numAccountsPtr = (int*)shmat(shmId, nullptr, 0);
-    if (numAccountsPtr == (int*)-1) {
-        perror("shmat");
+
+    int semId = semget(shmKey, 0, 0);
+    if (semId == -1) {
+        perror("semget");
         exit(1);
     }
 
+    struct semid_ds semInfo;
+    if (semctl(semId, 0, IPC_STAT, &semInfo) == -1) {
+        perror("semctl");
+        exit(1);
+    }
 
-    int numAccounts = *numAccountsPtr;
-    // Detach from the shared memory segment
-    shmdt(numAccountsPtr);
+    int numSemaphores = semInfo.sem_nsems;
+    
 
     // Remove the shared memory segment
     if (shmctl(shmId, IPC_RMID, nullptr) < 0) {
@@ -37,9 +41,9 @@ int main() {
         exit(errno);
     }
 
-    for(int i = 0; i < numAccounts; ++i){
+
         // Remove the semaphores associated with the shared memory segment
-        int semId = semget(shmKey + i, 1, IPC_CREAT | 0666);
+        semId = semget(shmKey, numSemaphores, IPC_CREAT | 0666);
         if (semId == -1) {
             perror("semget");
             exit(1);
@@ -50,6 +54,6 @@ int main() {
             exit(errno);
         }
 
-    }
+    // }
     return 0;
 }

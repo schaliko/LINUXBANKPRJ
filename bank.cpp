@@ -8,7 +8,7 @@
 // Constants for shared memory and semaphore
 // const int SHM_KEY = 1234;   // Shared memory key
 // const int SEM_KEY = 5678;   // Semaphore key
-int shmId_;
+
 
 // Bank constructor
 Bank::Bank(Account* bankData, int numAccounts, int maxBalance) : bankData_(bankData), numAccounts_(numAccounts), maxBalance_(maxBalance) {
@@ -34,22 +34,18 @@ void Bank::initializeSemaphores() {
         exit(EXIT_FAILURE);
     }
 
+    // create semaphores
+    // int sem_id = semget(IPC_PRIVATE, numAccounts_, IPC_CREAT | 0644);
+    int sem_id = semget(semKey, numAccounts_, IPC_CREAT | 0666);
+    if (sem_id == -1) {
+        perror("semget");
+        exit(EXIT_FAILURE);
+    }
 
-    // Create semaphores for each account
-    int* semIds_ = new int[numAccounts_];
-    for (int i = 0; i < numAccounts_; ++i) {
-        // Create a new semaphore
-        semIds_[i] = semget(semKey + i, 1, IPC_CREAT | 0666);
-        if (semIds_[i] == -1) {
-            perror("semget");
-            exit(EXIT_FAILURE);
-        }
-
-        // Initialize the semaphore value to 1
-        if (semctl(semIds_[i], 0, SETVAL, 1) == -1) {
-            perror("semctl");
-            exit(EXIT_FAILURE);
-        }
+    // Initialize the semaphore value to 1
+    if (semctl(sem_id, 0, SETVAL, 1) == -1) {
+        perror("semctl");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -66,31 +62,6 @@ Bank::~Bank() {
     // Destroy the semaphore
     semctl(semId_, 0, IPC_RMID);
 }
-
-
-// // Bank destructor
-// // Bank destructor
-// Bank::~Bank() {
-//     // Detach from the shared memory segment
-//     shmdt(bankData_);
-
-//     // Destroy the shared memory segment
-//     shmctl(shmId_, IPC_RMID, nullptr);
-
-//     // Destroy the semaphores
-//     for (int i = 0; i < numAccounts_; ++i) {
-//         int semId = semget(ftok("shm_file", 'A') + i, 1, IPC_CREAT | 0666);
-//         if (semId == -1) {
-//             perror("semget");
-//             exit(EXIT_FAILURE);
-//         }
-
-//         if (semctl(semId, 0, IPC_RMID) == -1) {
-//             perror("semctl");
-//             exit(EXIT_FAILURE);
-//         }
-//     }
-// }
 
 
 // Helper function to perform semaphore P operation

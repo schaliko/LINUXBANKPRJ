@@ -28,13 +28,9 @@ public:
     // Pointer to the shared memory segment
     Account* bankData_;
 
-    int getNumAccounts() const {
-        return numAccounts_;
-    }
+    int getNumAccounts();
 
-    int getMaxBalance() const {
-        return numAccounts_;
-    }
+    int getMaxBalance();
 
 
 private:
@@ -48,10 +44,10 @@ private:
     void initializeSemaphores();
 
     // Helper function to perform semaphore P operation (Post)
-    void semaphoreP();
+    void semaphoreP(int accountNum);
 
     // Helper function to perform semaphore V operation (Wait)
-    void semaphoreV();
+    void semaphoreV(int accountNum);
 
     // Helper function to access account data safely using semaphores
     Account& getAccount(int accountNum);
